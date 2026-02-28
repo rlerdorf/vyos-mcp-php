@@ -36,10 +36,7 @@ class VyosClient
      */
     public function showConfig(array $path = [], string $format = 'json'): mixed
     {
-        $data = ['op' => 'showConfig'];
-        if ($path) {
-            $data['path'] = $path;
-        }
+        $data = ['op' => 'showConfig', 'path' => $path];
         if ($format === 'raw') {
             $data['configFormat'] = 'raw';
         }
