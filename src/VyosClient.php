@@ -87,6 +87,16 @@ class VyosClient
     }
 
     /**
+     * Set multiple configuration values atomically.
+     *
+     * @param array<int, array{op: string, path: string[]}> $operations
+     */
+    public function batchConfigure(array $operations): void
+    {
+        $this->request('/configure', $operations);
+    }
+
+    /**
      * Delete a configuration node.
      *
      * @param string[] $path Configuration path components
