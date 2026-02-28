@@ -159,6 +159,16 @@ class VyosClient
         return $this->request('/generate', ['op' => 'generate', 'path' => $path]);
     }
 
+    // --- Diagnostics → /traceroute ---
+
+    /**
+     * Traceroute to a host (uses dedicated /traceroute endpoint).
+     */
+    public function traceroute(string $host): mixed
+    {
+        return $this->request('/traceroute', ['op' => 'traceroute', 'host' => $host]);
+    }
+
     // --- System → /reboot, /poweroff ---
 
     /**

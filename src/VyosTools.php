@@ -180,8 +180,11 @@ class VyosTools
     /**
      * Ping a host from the VyOS router.
      *
+     * Uses traceroute (mtr) under the hood since VyOS has no ping API endpoint.
+     * Returns hop-by-hop latency data including the final destination.
+     *
      * @param string $host Hostname or IP to ping
-     * @param int $count Number of pings to send
+     * @param int $count Number of pings to send (used as mtr report cycles)
      */
     #[McpTool(name: 'vyos_ping', description: 'Ping a host from the router')]
     public function ping(
@@ -189,7 +192,9 @@ class VyosTools
         #[Schema(type: 'integer', minimum: 1, maximum: 20, description: 'Number of pings')]
         int $count = 4,
     ): mixed {
-        return $this->wrap(fn() => $this->client->show(['ping', $host, 'count', (string) $count]));
+        // VyOS has no /ping API endpoint. Use /traceroute (mtr) which provides
+        // latency data for each hop including the destination.
+        return $this->wrap(fn() => $this->client->traceroute($host));
     }
 
     /**
@@ -200,7 +205,7 @@ class VyosTools
     #[McpTool(name: 'vyos_traceroute', description: 'Traceroute to a host from the router')]
     public function traceroute(string $host): mixed
     {
-        return $this->wrap(fn() => $this->client->show(['traceroute', $host]));
+        return $this->wrap(fn() => $this->client->traceroute($host));
     }
 
     /**
@@ -240,10 +245,10 @@ class VyosTools
             $results = [];
             $checks = [
                 'version' => ['version'],
-                'uptime' => ['uptime'],
-                'cpu' => ['cpu'],
-                'memory' => ['memory'],
-                'storage' => ['storage'],
+                'uptime' => ['system', 'uptime'],
+                'cpu' => ['system', 'cpu'],
+                'memory' => ['system', 'memory'],
+                'storage' => ['system', 'storage'],
             ];
 
             foreach ($checks as $label => $path) {
