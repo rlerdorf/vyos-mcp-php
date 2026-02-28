@@ -81,19 +81,30 @@ composer install
 
 ### Configure Claude Code
 
-Add the server to `~/.claude/settings.json`:
+Add the server to `.mcp.json` in your project root (or `~/.claude.json` for user-wide scope):
 
 ```json
-"mcpServers": {
+{
+  "mcpServers": {
     "vyos": {
-        "command": "php",
-        "args": ["/path/to/vyos-mcp-php/server.php"],
-        "env": {
-            "VYOS_HOST": "https://your-router-ip",
-            "VYOS_API_KEY": "your-api-key"
-        }
+      "command": "php",
+      "args": ["/path/to/vyos-mcp-php/server.php"],
+      "env": {
+        "VYOS_HOST": "https://your-router-ip",
+        "VYOS_API_KEY": "your-api-key"
+      }
     }
+  }
 }
+```
+
+Or via the CLI:
+
+```bash
+claude mcp add --transport stdio \
+  --env VYOS_HOST=https://your-router-ip \
+  --env VYOS_API_KEY=your-key \
+  vyos -- php /path/to/vyos-mcp-php/server.php
 ```
 
 Claude Code spawns the PHP process on demand and injects credentials via environment variables. No systemd service, no background process, no per-session connect step — tools are available immediately.
