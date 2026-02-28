@@ -50,6 +50,36 @@ class VyosTools
     }
 
     /**
+     * Set multiple VyOS configuration values atomically in a single transaction.
+     *
+     * Each operation is an object with "op" (set or delete) and "path" (array of strings).
+     * All operations are committed together — if any fail, none are applied.
+     *
+     * @param array<int, array{op: string, path: string[]}> $operations
+     */
+    #[McpTool(name: 'vyos_batch_config', description: 'Set or delete multiple configuration values atomically')]
+    public function batchConfig(
+        #[Schema(
+            type: 'array',
+            items: [
+                'type' => 'object',
+                'properties' => [
+                    'op' => ['type' => 'string', 'enum' => ['set', 'delete']],
+                    'path' => ['type' => 'array', 'items' => ['type' => 'string']],
+                ],
+                'required' => ['op', 'path'],
+            ],
+            description: 'Array of operations, each with "op" (set/delete) and "path"',
+        )]
+        array $operations,
+    ): string {
+        return $this->wrap(function () use ($operations) {
+            $this->client->batchConfigure($operations);
+            return 'Batch configuration applied successfully (' . count($operations) . ' operations)';
+        });
+    }
+
+    /**
      * Delete a VyOS configuration node.
      *
      * @param string[] $path Configuration path to delete
